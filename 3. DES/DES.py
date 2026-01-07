@@ -1,39 +1,42 @@
+
 from Crypto.Cipher import DES
 from Crypto.Util.Padding import pad, unpad
 from Crypto.Random import get_random_bytes
 import binascii
 
-# DES key 64 bits (8 bytes)
+# Generate a random 8-byte (64-bit) DES key
+random_key = get_random_bytes(8)
 
+# Alternatively, use a fixed 8-byte key (for demonstration only; not secure for real use)
+fixed_key = b'secretkey'[:8]  # Ensure the key is exactly 8 bytes
 
-# Size of the key must be 64 bits (8 bytes)
-key = b'secretkey'
+print(f"Random key: {random_key}")
+print(f"Fixed key: {fixed_key}")
 
-key1 = get_random_bytes(8)
+# Choose which key to use for encryption/decryption
+key = random_key  # Change to fixed_key if you want to use the fixed one
 
-# Ensure that key is 8 bytes
-key = key[:8] if len(key) >= 8 else key.ljust(8, b"\x00")
-
-print(f"random key: {key1}")
-print(f"selected key: {key}")
-
-
-# DES will generate the IV automatically
+# Create a new DES cipher object in CBC mode (IV is generated automatically)
 encrypt_cipher = DES.new(key, DES.MODE_CBC)
+iv = encrypt_cipher.iv
 
-iv = encrypt_cipher.IV
 print(f"IV: {iv}")
 print(f"Block size: {encrypt_cipher.block_size}")
 
-plain_text = b'This is the plain text'
-print(f"plaintext: {plain_text}")
-padded_plain_text = pad(plain_text, DES.block_size)
+# Example plaintext to encrypt
+plaintext = b'This is the plain text'
+print(f"Plaintext: {plaintext}")
 
-cipher_text = encrypt_cipher.encrypt(padded_plain_text)
-print(f"ciphertext: {binascii.hexlify(cipher_text)}")
+# Pad the plaintext to be a multiple of DES block size
+padded_plaintext = pad(plaintext, DES.block_size)
 
+# Encrypt the padded plaintext
+ciphertext = encrypt_cipher.encrypt(padded_plaintext)
+print(f"Ciphertext (hex): {binascii.hexlify(ciphertext).decode()}")
+
+# Create a new DES cipher for decryption using the same key and IV
 decrypt_cipher = DES.new(key, DES.MODE_CBC, iv)
-original_text = decrypt_cipher.decrypt(cipher_text)
-original_text = unpad(original_text, DES.block_size).decode()   # decode for get the string
 
-print(f"plaintext after decription: {original_text}")
+# Decrypt and unpad the ciphertext to get the original plaintext
+decrypted_plaintext = unpad(decrypt_cipher.decrypt(ciphertext), DES.block_size)
+print(f"Decrypted Plaintext: {decrypted_plaintext.decode()}")
