@@ -2,12 +2,12 @@
  * AES.java
  * Java implementation of the AES algorithm (simplified, for educational purposes).
  * Uses Java libraries to encrypt and decrypt text with an AES key.
+ * Includes input validation and improved comments.
  */
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 public class AES {
@@ -19,6 +19,7 @@ public class AES {
      * @throws Exception In case of encryption error
      */
     public static String encrypt(String plainText, SecretKey key) throws Exception {
+        if (plainText == null || key == null) throw new IllegalArgumentException("Text and key cannot be null");
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, key);
         byte[] encrypted = cipher.doFinal(plainText.getBytes());
@@ -33,6 +34,7 @@ public class AES {
      * @throws Exception In case of decryption error
      */
     public static String decrypt(String cipherText, SecretKey key) throws Exception {
+        if (cipherText == null || key == null) throw new IllegalArgumentException("Cipher text and key cannot be null");
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.DECRYPT_MODE, key);
         byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(cipherText));
