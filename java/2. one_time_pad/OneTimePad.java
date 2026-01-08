@@ -1,22 +1,42 @@
-// OneTimePad.java
-// Java implementation of the One-Time Pad cipher
-import java.util.Random;
+/**
+ * OneTimePad.java
+ * Java implementation of the One-Time Pad cipher.
+ * Provides methods to encrypt and decrypt text using a random key of the same length as the message.
+ */
 
 public class OneTimePad {
+    /**
+     * Encrypts text using the key with XOR operation.
+     * @param text The text to encrypt
+     * @param key The random key
+     * @return The encrypted text
+     */
     public static String encrypt(String text, String key) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {
+            // XOR between text character and key character
             result.append((char) (text.charAt(i) ^ key.charAt(i)));
         }
         return result.toString();
     }
 
+    /**
+     * Decrypts text encrypted with the key using XOR (symmetric operation).
+     * @param cipher The encrypted text
+     * @param key The random key
+     * @return The decrypted text
+     */
     public static String decrypt(String cipher, String key) {
         return encrypt(cipher, key); // XOR is symmetric
     }
 
+    /**
+     * Generates a random key of the specified length.
+     * @param length Length of the key
+     * @return Random key
+     */
     public static String generateKey(int length) {
-        Random rand = new Random();
+        java.util.Random rand = new java.util.Random();
         StringBuilder key = new StringBuilder();
         for (int i = 0; i < length; i++) {
             key.append((char) (rand.nextInt(256)));
@@ -24,6 +44,9 @@ public class OneTimePad {
         return key.toString();
     }
 
+    /**
+     * Example usage of the One-Time Pad cipher.
+     */
     public static void main(String[] args) {
         String text = "HELLO WORLD";
         String key = generateKey(text.length());
