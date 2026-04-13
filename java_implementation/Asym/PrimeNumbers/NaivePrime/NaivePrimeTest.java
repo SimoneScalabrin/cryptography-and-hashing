@@ -1,4 +1,4 @@
-package PrimeNumbers;
+package PrimeNumbers.NaivePrime;
 
 /**
  * Provides a naive (trial-division) primality test.

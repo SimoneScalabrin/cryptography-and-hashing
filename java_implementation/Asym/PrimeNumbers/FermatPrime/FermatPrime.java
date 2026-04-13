@@ -1,4 +1,4 @@
-package PrimeNumbers;
+package PrimeNumbers.FermatPrime;
 
 /**
  * Demonstrates the Fermat probabilistic primality test implemented in

@@ -1,4 +1,4 @@
-package PrimeNumbers;
+package PrimeNumbers.FermatPrime;
 
 import java.util.Random;
 

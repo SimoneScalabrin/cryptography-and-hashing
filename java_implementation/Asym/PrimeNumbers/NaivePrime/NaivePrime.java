@@ -1,4 +1,4 @@
-package PrimeNumbers;
+package PrimeNumbers.NaivePrime;
 
 /**
  * Demonstrates the naive primality test implemented in {@link NaivePrimeTest}.
