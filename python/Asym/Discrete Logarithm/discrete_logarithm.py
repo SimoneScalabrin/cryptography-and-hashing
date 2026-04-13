@@ -157,27 +157,65 @@ if __name__ == "__main__":
         print(f"  {b}^{e} mod {m} = {modular_exponentiation(b, e, m)}")
 
     # -------------------------------------------------------------------------
-    # 2. Trapdoor asymmetry — timing comparison
+    # 2. Trapdoor asymmetry — timing comparison across growing prime sizes
+    #
+    # For each prime p we run N_SAMPLES random secrets and average the timings.
+    # The EASY direction (modular exponentiation) stays O(log exponent) and
+    # barely changes. The HARD direction (brute-force DL) is O(p) on average,
+    # so the gap grows linearly with p — and would grow exponentially for
+    # cryptographic-sized primes where even smarter algorithms fail.
     # -------------------------------------------------------------------------
-    print("\n=== Trapdoor asymmetry (small prime p=1009) ===")
-    p, g = 1009, 7      # small prime for demo
-    secret = 283        # pretend this is Alice's private key
+    import random
+    import statistics
 
-    # EASY direction: exponentiation
-    t0 = time.perf_counter()
-    public = modular_exponentiation(g, secret, p)
-    t_easy = (time.perf_counter() - t0) * 1e6
+    # (prime p, generator g, human label)
+    # Primes chosen so that g is a primitive root and brute-force stays feasible
+    test_primes = [
+        (23,    5,  "p=23    (~5 bits)"),
+        (97,    5,  "p=97    (~7 bits)"),
+        (509,   2,  "p=509   (~9 bits)"),
+        (1009,  7,  "p=1009  (~10 bits)"),
+        (2039,  7,  "p=2039  (~11 bits)"),
+        (4093,  2,  "p=4093  (~12 bits)"),
+        (8191,  7,  "p=8191  (~13 bits, Mersenne prime)"),
+        (16381, 7,  "p=16381 (~14 bits)"),
+        (32749, 6,  "p=32749 (~15 bits)"),
+    ]
 
-    # HARD direction: brute-force discrete log
-    t0 = time.perf_counter()
-    recovered = discrete_logarithm(g, public, p)
-    t_hard = (time.perf_counter() - t0) * 1e6
+    N_SAMPLES = 10   # averages over this many random secrets per prime
 
-    print(f"  Secret exponent       : {secret}")
-    print(f"  Public value g^x mod p: {public}")
-    print(f"  Easy  (g^x mod p)     : {t_easy:.2f} µs")
-    print(f"  Hard  (brute-force DL): {t_hard:.2f} µs  (recovered exponent = {recovered})")
-    print(f"  Ratio hard/easy       : ~{t_hard / t_easy:.0f}x slower  ← trapdoor gap")
+    print("\n=== Trapdoor asymmetry — how the gap grows with prime size ===")
+    print(f"  (averaged over {N_SAMPLES} random secrets each)\n")
+    print(f"  {'Prime':<30}  {'Easy (µs)':>10}  {'Hard (µs)':>12}  {'Ratio':>8}")
+    print(f"  {'-'*30}  {'-'*10}  {'-'*12}  {'-'*8}")
+
+    for p, g, label in test_primes:
+        easy_times, hard_times = [], []
+
+        for _ in range(N_SAMPLES):
+            secret = random.randint(2, p - 2)
+
+            # EASY: modular exponentiation — O(log secret)
+            t0 = time.perf_counter()
+            public = modular_exponentiation(g, secret, p)
+            easy_times.append((time.perf_counter() - t0) * 1e6)
+
+            # HARD: brute-force discrete log — O(p) worst case
+            t0 = time.perf_counter()
+            discrete_logarithm(g, public, p)
+            hard_times.append((time.perf_counter() - t0) * 1e6)
+
+        avg_easy = statistics.mean(easy_times)
+        avg_hard = statistics.mean(hard_times)
+        ratio    = avg_hard / avg_easy if avg_easy > 0 else float("inf")
+
+        print(f"  {label:<30}  {avg_easy:>10.2f}  {avg_hard:>12.2f}  {ratio:>7.0f}x")
+
+    print()
+    print("  Observation: Easy stays roughly constant (O(log e) is fast).")
+    print("  Hard grows ~linearly with p — the ratio widens steadily.")
+    print("  For a 2048-bit prime (~10^617) brute-force would take longer")
+    print("  than the age of the universe, even on all computers on Earth.")
 
     # -------------------------------------------------------------------------
     # 3. Diffie-Hellman key exchange
