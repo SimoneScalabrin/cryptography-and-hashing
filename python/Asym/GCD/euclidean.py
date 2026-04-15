@@ -125,6 +125,42 @@ def are_coprime(a: int, b: int) -> bool:
     return gcd_iterative(a, b) == 1
 
 
+def modular_inverse(a: int, m: int) -> int:
+    """Return the modular inverse of *a* modulo *m*, i.e. x such that a*x ≡ 1 (mod m).
+
+    Uses the Extended Euclidean Algorithm. The inverse exists if and only if
+    gcd(a, m) == 1 (a and m are coprime).
+
+    Typical use in RSA: given public exponent e and φ(n), compute the private
+    exponent d = modular_inverse(e, φ(n)) so that e*d ≡ 1 (mod φ(n)).
+
+    Args:
+        a: The integer to invert.
+        m: The modulus (must be > 1).
+
+    Returns:
+        The modular inverse of a mod m, in the range [0, m).
+
+    Raises:
+        ValueError: If m <= 1.
+        ValueError: If the inverse does not exist (gcd(a, m) != 1).
+
+    Examples:
+        >>> modular_inverse(3, 40)   # RSA: e=3, φ(n)=40 → d=27
+        27
+        >>> modular_inverse(3, 11)   # 3*4 ≡ 1 (mod 11)
+        4
+        >>> modular_inverse(7, 26)   # 7*15 ≡ 1 (mod 26)
+        15
+    """
+    if m <= 1:
+        raise ValueError(f"Modulus must be > 1, got {m}")
+    g, x, _ = extended_gcd(a % m, m)
+    if g != 1:
+        raise ValueError(f"{a} has no modular inverse mod {m} (gcd={g})")
+    return x % m
+
+
 # ---------------------------------------------------------------------------
 # Example usage
 # ---------------------------------------------------------------------------
@@ -162,12 +198,15 @@ if __name__ == "__main__":
               f"{a}*({x}) + {b}*({y}) = {a*x + b*y}")
 
     print()
-    print("Modular inverse via extended GCD (used in RSA):")
+    print("Modular inverse (modular_inverse):")
     print("-" * 55)
-    # Modular inverse of e mod φ(n): find x such that e*x ≡ 1 (mod φ)
-    e, phi = 3, 40          # toy RSA example: p=5, q=11 → φ=40
-    g, x, _ = extended_gcd(e, phi)
-    if g == 1:
-        mod_inv = x % phi
-        print(f"  Modular inverse of {e} mod {phi}  →  d = {mod_inv}  "
-              f"(check: {e}*{mod_inv} mod {phi} = {(e * mod_inv) % phi})")
+    inv_examples = [
+        (3,  40,   "RSA toy: e=3, φ(n)=40"),
+        (3,  11,   "3*4 ≡ 1 (mod 11)"),
+        (7,  26,   "7*15 ≡ 1 (mod 26)"),
+        (17, 3120, "RSA: e=17, φ(n)=3120"),  # p=61, q=53
+    ]
+    for a, m, note in inv_examples:
+        d = modular_inverse(a, m)
+        print(f"  modular_inverse({a}, {m})  →  {d}  "
+              f"(check: {a}*{d} mod {m} = {(a * d) % m})  # {note}")

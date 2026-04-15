@@ -105,6 +105,31 @@ public class GCD {
         return gcdIterative(a, b) == 1;
     }
 
+    /**
+     * Returns the modular inverse of {@code a} modulo {@code m},
+     * i.e. {@code x} such that {@code a*x ≡ 1 (mod m)}.
+     *
+     * <p>Uses the Extended Euclidean Algorithm. The inverse exists if and only if
+     * {@code gcd(a, m) == 1} (a and m are coprime).
+     *
+     * <p>Typical use in RSA: given public exponent {@code e} and φ(n),
+     * compute the private exponent {@code d = modularInverse(e, φ(n))}.
+     *
+     * @param a the integer to invert
+     * @param m the modulus (must be &gt; 1)
+     * @return the modular inverse of a mod m, in the range [0, m)
+     * @throws IllegalArgumentException if m &lt;= 1 or the inverse does not exist
+     */
+    public static long modularInverse(long a, long m) {
+        if (m <= 1) throw new IllegalArgumentException("Modulus must be > 1, got " + m);
+        long aMod = ((a % m) + m) % m;
+        ExtendedGcdResult r = extendedGcd(aMod, m);
+        if (r.gcd() != 1)
+            throw new IllegalArgumentException(
+                a + " has no modular inverse mod " + m + " (gcd=" + r.gcd() + ")");
+        return (r.x() % m + m) % m;
+    }
+
     // -----------------------------------------------------------------------
     // Example usage
     // -----------------------------------------------------------------------
@@ -146,15 +171,15 @@ public class GCD {
         }
 
         System.out.println();
-        System.out.println("Modular inverse via extended GCD (used in RSA):");
+        System.out.println("Modular inverse (modularInverse):");
         System.out.println("-".repeat(60));
-        // Toy RSA example: p=5, q=11 → n=55, φ(n)=40, e=3
-        long e = 3, phi = 40;
-        ExtendedGcdResult r = extendedGcd(e, phi);
-        if (r.gcd() == 1) {
-            long d = ((r.x() % phi) + phi) % phi;
-            System.out.printf("  Modular inverse of %d mod %d  →  d = %d  (check: %d*%d mod %d = %d)%n",
-                    e, phi, d, e, d, phi, (e * d) % phi);
+        long[][] invExamples = {{3, 40}, {3, 11}, {7, 26}, {17, 3120}};
+        String[] invNotes = {"RSA toy: e=3, phi=40", "3*4=1 mod 11", "7*15=1 mod 26", "RSA: e=17, phi=3120"};
+        for (int i = 0; i < invExamples.length; i++) {
+            long a = invExamples[i][0], m = invExamples[i][1];
+            long d = modularInverse(a, m);
+            System.out.printf("  modularInverse(%d, %d)  ->  %d  (check: %d*%d mod %d = %d)  # %s%n",
+                    a, m, d, a, d, m, (a * d) % m, invNotes[i]);
         }
     }
 }
