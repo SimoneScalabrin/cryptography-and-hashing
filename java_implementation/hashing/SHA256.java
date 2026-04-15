@@ -3,6 +3,7 @@ package java_implementation.hashing;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class for computing SHA-256 hashes.
@@ -17,7 +18,7 @@ public class SHA256 {
     public static String sha256Hash(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = md.digest(input.getBytes());
+            byte[] hashBytes = md.digest(input.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             for (byte b : hashBytes) {
                 sb.append(String.format("%02x", b));

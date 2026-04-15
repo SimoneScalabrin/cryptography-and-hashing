@@ -72,6 +72,11 @@ def discrete_logarithm(base: int, result: int, modulus: int) -> int:
     Returns:
         int: The exponent x such that base^x ≡ result (mod modulus).
 
+    Raises:
+        ValueError: If result is not in [0, modulus).
+        ValueError: If no solution is found within modulus iterations (base is
+                    not a primitive root or result is not in the cyclic subgroup).
+
     Note:
         This brute-force implementation is for educational purposes only.
         It is practical only for small moduli (p < ~10^6).
@@ -85,10 +90,19 @@ def discrete_logarithm(base: int, result: int, modulus: int) -> int:
         >>> discrete_logarithm(2, 9, 11)
         6                           # because 2^6 mod 11 = 64 mod 11 = 9
     """
+    if not (0 <= result < modulus):
+        raise ValueError(f"result must be in [0, {modulus}), got {result}")
     exponent = 1
-    while pow(base, exponent, modulus) != result:
+    # The order of the cyclic group is at most modulus-1; if no solution is
+    # found within that many steps, none exists for this (base, modulus) pair.
+    for _ in range(modulus - 1):
+        if pow(base, exponent, modulus) == result:
+            return exponent
         exponent += 1
-    return exponent
+    raise ValueError(
+        f"No discrete logarithm found: {base}^x ≡ {result} (mod {modulus}) "
+        f"has no solution (base may not be a primitive root)"
+    )
 
 
 # =============================================================================

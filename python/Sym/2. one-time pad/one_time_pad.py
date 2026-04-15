@@ -56,7 +56,8 @@ def otp_decrypt(cipher_text, key):
     try:
         return plain_bytes.decode('utf-8')
     except UnicodeDecodeError:
-        return plain_bytes  # Return bytes if not valid utf-8
+        # Return hex string so the return type is always str
+        return plain_bytes.hex()
 
 def frequency_analysis(text):
     """

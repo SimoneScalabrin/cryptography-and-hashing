@@ -116,7 +116,8 @@ def diffie_hellman_exchange(p: int, g: int,
     shared_alice = compute_shared_secret(bob_public,   alice_private, p)
     shared_bob   = compute_shared_secret(alice_public, bob_private,   p)
 
-    assert shared_alice == shared_bob, "BUG: shared secrets do not match!"
+    if shared_alice != shared_bob:
+        raise ValueError("BUG: shared secrets do not match!")
 
     return {
         "alice_private": alice_private,

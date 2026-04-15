@@ -2,6 +2,7 @@ package java_implementation.hashing;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class for computing MD5 hashes.
@@ -16,7 +17,7 @@ public class MD5 {
     public static String md5Hash(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hashBytes = md.digest(input.getBytes());
+            byte[] hashBytes = md.digest(input.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             for (byte b : hashBytes) {
                 sb.append(String.format("%02x", b));

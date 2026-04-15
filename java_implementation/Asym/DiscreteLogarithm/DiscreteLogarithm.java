@@ -88,12 +88,21 @@ public class DiscreteLogarithm {
     public static BigInteger discreteLogarithm(BigInteger base,
                                                 BigInteger result,
                                                 BigInteger modulus) {
+        if (result.signum() < 0 || result.compareTo(modulus) >= 0)
+            throw new IllegalArgumentException(
+                "result must be in [0, " + modulus + "), got " + result);
         BigInteger exponent = BigInteger.ONE;
-        // Try every exponent until base^exponent mod modulus == result
-        while (!base.modPow(exponent, modulus).equals(result)) {
+        // The order of the cyclic group is at most modulus-1. If no solution
+        // is found within that many steps, none exists for this (base, modulus).
+        BigInteger limit = modulus.subtract(BigInteger.ONE);
+        while (exponent.compareTo(limit) <= 0) {
+            if (base.modPow(exponent, modulus).equals(result))
+                return exponent;
             exponent = exponent.add(BigInteger.ONE);
         }
-        return exponent;
+        throw new IllegalArgumentException(
+            "No discrete logarithm found: " + base + "^x ≡ " + result +
+            " (mod " + modulus + ") has no solution (base may not be a primitive root)");
     }
 
     // -------------------------------------------------------------------------

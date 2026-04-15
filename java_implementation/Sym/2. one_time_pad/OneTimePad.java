@@ -40,7 +40,7 @@ public class OneTimePad {
      */
     public static String generateKey(int length) {
         if (length < 0) throw new IllegalArgumentException("Key length cannot be negative");
-        java.util.Random rand = new java.util.Random();
+        java.security.SecureRandom rand = new java.security.SecureRandom();
         StringBuilder key = new StringBuilder();
         for (int i = 0; i < length; i++) {
             key.append((char) (rand.nextInt(256)));

@@ -48,6 +48,7 @@ public class FermatPrimeTest {
      */
     public boolean isPrime(long num, int k) {
         // Numbers ≤ 1 are not prime by definition
+        if (k <= 0) throw new IllegalArgumentException("k must be a positive integer, got " + k);
         if (num <= 1) return false;
 
         // 2 and 3 are prime; handle explicitly since randint below

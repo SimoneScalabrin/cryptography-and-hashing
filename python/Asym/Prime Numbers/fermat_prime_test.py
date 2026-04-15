@@ -53,6 +53,8 @@ def is_prime(num: int, k: int = 10) -> bool:
         >>> is_prime(561)   # Carmichael number — may return True (false positive)
         True
     """
+    if k <= 0:
+        raise ValueError(f"k must be a positive integer, got {k}")
     # Numbers ≤ 1 are not prime by definition
     if num <= 1:
         return False
